@@ -1,0 +1,1341 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": "Bungie API",
+		"description": "Move your app forward with the Uber API",
+		"version": "1.0.0"
+	},
+	"host": "www.bungie.net",
+	"schemes": [
+		"https"
+	],
+	"basePath": "/Platform",
+	"produces": [
+		"application/json"
+	],
+	"securityDefinitions": {
+		"api_key": {
+			"type": "apiKey",
+			"description": "API Identification",
+			"name": "X-API-Key",
+			"in": "header"
+		},
+		"bungie_auth": {
+			"type": "oauth2",
+			"description": "User authentication",
+			"flow": "accessCode",
+			"authorizationUrl": "https://www.bungie.net/en/Application/Authorize/11186",
+			"tokenUrl": "https://www.bungie.net/Platform/App/GetAccessTokensFromCode/",
+			"scopes": {
+				"ReadBasicUserProfile": "Read user profile information such as the user's handle, Xbox and PSN account names, and Destiny characters.",
+				"ReadUserData": "Read user data such as web notifications, clan/group memberships, recent activity, and muted users."
+			}
+		}
+	},
+	"paths": {
+		"/Destiny/Manifest/": {
+			"get": {
+				"operationId": "getDestinyManifest",
+				"responses": {
+					"200": {
+						"description": "Get Destiny Manifest File",
+						"schema": {
+							"$ref": "#/definitions/ManifestResponse"
+						}
+					}
+				}
+			}
+		},
+		"/App/GetAccessTokensFromCode/": {
+			"post": {
+				"summary": "Retrieve tokens from access code.",
+				"operationId": "getAccessTokensFromCode",
+				"responses": {
+					"200": {
+						"description": "Retrieve access tokens from access code",
+						"schema": {
+							"$ref": "#/definitions/AccessTokensResponse"
+						}
+					}
+				},
+				"parameters": [{
+						"name": "code",
+						"in": "body",
+						"description": "Access code",
+						"required": true,
+						"schema": {
+							"type": "object",
+							"properties": {
+								"code": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				]
+			}
+		},
+		"/Destiny/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/": {
+			"parameters": [{
+					"name": "membershipType",
+					"in": "path",
+					"required": true,
+					"type": "integer"
+				}, {
+					"name": "destinyMembershipId",
+					"in": "path",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "characterId",
+					"in": "path",
+					"required": true,
+					"type": "string"
+				}
+			],
+			"get": {
+				"summary": "Returns information for the inventory for the supplied character.",
+				"operationId": "getCharacterInventory",
+				"responses": {
+					"200": {
+						"description": "Retrieve Inventory for Character",
+						"schema": {
+							"$ref": "#/definitions/CharacterInventoryResponse"
+						}
+					}
+				},
+				"security": [{
+						"bungie_auth": [],
+						"api_key": []
+					}
+				]
+			}
+		},
+		"/Destiny/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Inventory/Summary/": {
+			"parameters": [{
+					"name": "membershipType",
+					"in": "path",
+					"required": true,
+					"type": "integer"
+				}, {
+					"name": "destinyMembershipId",
+					"in": "path",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "characterId",
+					"in": "path",
+					"required": true,
+					"type": "string"
+				}
+			],
+			"get": {
+				"summary": "Returns summary information for the inventory for the supplied character.",
+				"operationId": "getCharacterInventorySummary",
+				"responses": {
+					"200": {
+						"description": "Retrieve Inventory Summary for Character",
+						"schema": {
+							"$ref": "#/definitions/CharacterInventorySummaryResponse"
+						}
+					}
+				},
+				"security": [{
+						"bungie_auth": [],
+						"api_key": []
+					}
+				]
+			}
+		},
+		"/Destiny/{membershipType}/MyAccount/Vault/": {
+			"parameters": [{
+					"name": "membershipType",
+					"in": "path",
+					"required": true,
+					"type": "integer"
+				}, {
+					"name": "accountId",
+					"in": "query",
+					"required": true,
+					"type": "string"
+				}
+			],
+			"get": {
+				"summary": "Returns summary information for the inventory for the supplied character.",
+				"operationId": "getAccountVault",
+				"responses": {
+					"200": {
+						"description": "Retrieve Account Vault",
+						"schema": {
+							"$ref": "#/definitions/AccountVaultResponse"
+						}
+					}
+				},
+				"security": [{
+						"bungie_auth": [],
+						"api_key": []
+					}
+				]
+			}
+		},
+		"/User/GetCurrentBungieAccount/": {
+			"get": {
+				"summary": "Returns the logged-in accounts' information, including any exposed BungieNet and Destiny information.",
+				"operationId": "getCurrentBungieAccount",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/CurrentBungieAccountResponse"
+						}
+					}
+				},
+				"security": [{
+						"bungie_auth": [
+							"ReadBasicUserProfile"
+						],
+						"api_key": []
+					}
+				]
+			}
+		},
+		"/User/GetBungieNetUser/": {
+			"get": {
+				"summary": "Gets user details of signed-in user.",
+				"operationId": "getBungieNetUser",
+				"responses": {
+					"200": {
+						"description": "Stuff",
+						"schema": {
+							"$ref": "#/definitions/BungieNetUserResponse"
+						}
+					}
+				},
+				"security": [{
+						"bungie_auth": [
+							"ReadUserData"
+						],
+						"api_key": []
+					}
+				]
+			}
+		}
+	},
+	"definitions": {
+		"CurrentBungieAccount": {
+			"type": "object",
+			"properties": {
+				"destinyAccounts": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"userInfo": {
+								"type": "object",
+								"properties": {
+									"iconPath": {
+										"type": "string"
+									},
+									"membershipType": {
+										"type": "integer"
+									},
+									"membershipId": {
+										"type": "string"
+									},
+									"displayName": {
+										"type": "string"
+									}
+								}
+							},
+							"grimoireScore": {
+								"type": "integer"
+							},
+							"characters": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"characterId": {
+											"type": "string"
+										},
+										"raceHash": {
+											"type": "string"
+										},
+										"genderHash": {
+											"type": "string"
+										},
+										"classHash": {
+											"type": "string"
+										},
+										"emblemHash": {
+											"type": "string"
+										},
+										"race": {
+											"type": "object",
+											"properties": {
+												"raceHash": {
+													"type": "string"
+												},
+												"raceType": {
+													"type": "integer"
+												},
+												"raceName": {
+													"type": "string"
+												},
+												"raceNameMale": {
+													"type": "string"
+												},
+												"raceNameFemale": {
+													"type": "string"
+												},
+												"raceDescription": {
+													"type": "string"
+												},
+												"hash": {
+													"type": "string"
+												},
+												"index": {
+													"type": "integer"
+												},
+												"redacted": {
+													"type": "boolean"
+												}
+											}
+										},
+										"gender": {
+											"type": "object",
+											"properties": {
+												"genderHash": {
+													"type": "string"
+												},
+												"genderType": {
+													"type": "integer"
+												},
+												"genderName": {
+													"type": "string"
+												},
+												"genderDescription": {
+													"type": "string"
+												},
+												"hash": {
+													"type": "string"
+												},
+												"index": {
+													"type": "integer"
+												},
+												"redacted": {
+													"type": "boolean"
+												}
+											}
+										},
+										"characterClass": {
+											"type": "object",
+											"properties": {
+												"classHash": {
+													"type": "string"
+												},
+												"classType": {
+													"type": "integer"
+												},
+												"className": {
+													"type": "string"
+												},
+												"classNameMale": {
+													"type": "string"
+												},
+												"classNameFemale": {
+													"type": "string"
+												},
+												"classIdentifier": {
+													"type": "string"
+												},
+												"mentorVendorIdentifier": {
+													"type": "string"
+												},
+												"hash": {
+													"type": "string"
+												},
+												"index": {
+													"type": "integer"
+												},
+												"redacted": {
+													"type": "boolean"
+												}
+											}
+										},
+										"emblemPath": {
+											"type": "string"
+										},
+										"backgroundPath": {
+											"type": "string"
+										},
+										"level": {
+											"type": "integer"
+										},
+										"powerLevel": {
+											"type": "integer"
+										},
+										"dateLastPlayed": {
+											"type": "string"
+										},
+										"membershipId": {
+											"type": "string"
+										},
+										"membershipType": {
+											"type": "integer"
+										},
+										"levelProgression": {
+											"type": "object",
+											"properties": {
+												"dailyProgress": {
+													"type": "integer"
+												},
+												"weeklyProgress": {
+													"type": "integer"
+												},
+												"currentProgress": {
+													"type": "integer"
+												},
+												"level": {
+													"type": "integer"
+												},
+												"step": {
+													"type": "integer"
+												},
+												"progressToNextLevel": {
+													"type": "integer"
+												},
+												"nextLevelAt": {
+													"type": "integer"
+												},
+												"progressionHash": {
+													"type": "string"
+												}
+											}
+										},
+										"isPrestigeLevel": {
+											"type": "boolean"
+										},
+										"genderType": {
+											"type": "integer"
+										},
+										"classType": {
+											"type": "integer"
+										},
+										"percentToNextLevel": {
+											"type": "integer"
+										},
+										"currentActivityHash": {
+											"type": "string"
+										}
+									}
+								}
+							},
+							"lastPlayed": {
+								"type": "string"
+							},
+							"versions": {
+								"type": "integer"
+							}
+						}
+					}
+				},
+				"bungieNetUser": {
+					"$ref": "#/definitions/BungieNetUser"
+				},
+				"clans": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"groupId": {
+								"type": "string"
+							},
+							"platformType": {
+								"type": "integer"
+							}
+						}
+					}
+				},
+				"relatedGroups": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "object",
+						"properties": {
+							"groupId": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"membershipIdCreated": {
+								"type": "string"
+							},
+							"creationDate": {
+								"type": "string"
+							},
+							"modificationDate": {
+								"type": "string"
+							},
+							"groupType": {
+								"type": "integer"
+							},
+							"about": {
+								"type": "string"
+							},
+							"isDeleted": {
+								"type": "boolean"
+							},
+							"deletionDate": {
+								"type": "string"
+							},
+							"deletedByMembershipId": {
+								"type": "string"
+							},
+							"tags": {
+								"type": "array",
+								"items": {
+									"type": "object"
+								}
+							},
+							"rating": {
+								"type": "integer"
+							},
+							"ratingCount": {
+								"type": "integer"
+							},
+							"memberCount": {
+								"type": "integer"
+							},
+							"pendingMemberCount": {
+								"type": "integer"
+							},
+							"isPublic": {
+								"type": "boolean"
+							},
+							"isMembershipClosed": {
+								"type": "boolean"
+							},
+							"isMembershipReviewed": {
+								"type": "boolean"
+							},
+							"isPublicTopicAdminOnly": {
+								"type": "boolean"
+							},
+							"primaryAlliedGroupId": {
+								"type": "string"
+							},
+							"motto": {
+								"type": "string"
+							},
+							"clanCallsign": {
+								"type": "string"
+							},
+							"allowChat": {
+								"type": "boolean"
+							},
+							"isDefaultPostPublic": {
+								"type": "boolean"
+							},
+							"isDefaultPostAlliance": {
+								"type": "boolean"
+							},
+							"chatSecurity": {
+								"type": "integer"
+							},
+							"locale": {
+								"type": "string"
+							},
+							"avatarImageIndex": {
+								"type": "integer"
+							},
+							"founderMembershipId": {
+								"type": "string"
+							},
+							"homepage": {
+								"type": "integer"
+							},
+							"membershipOption": {
+								"type": "integer"
+							},
+							"defaultPublicity": {
+								"type": "integer"
+							},
+							"theme": {
+								"type": "string"
+							},
+							"bannerPath": {
+								"type": "string"
+							},
+							"avatarPath": {
+								"type": "string"
+							},
+							"isAllianceOwner": {
+								"type": "boolean"
+							},
+							"conversationId": {
+								"type": "string"
+							},
+							"clanReviewType": {
+								"type": "integer"
+							},
+							"enableInvitationMessagingForAdmins": {
+								"type": "boolean"
+							},
+							"banExpireDate": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"destinyAccountErrors": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"errorCode": {
+								"type": "integer"
+							},
+							"message": {
+								"type": "string"
+							},
+							"membershipType": {
+								"type": "integer"
+							},
+							"membershipId": {
+								"type": "string"
+							},
+							"displayName": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		},
+		"CurrentBungieAccountResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/CurrentBungieAccount"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object"
+				}
+			}
+		},
+		"BungieNetUser": {
+			"type": "object",
+			"properties": {
+				"user": {
+					"type": "object",
+					"properties": {
+						"membershipId": {
+							"type": "string"
+						},
+						"uniqueName": {
+							"type": "string"
+						},
+						"displayName": {
+							"type": "string"
+						},
+						"profilePicture": {
+							"type": "integer"
+						},
+						"profileTheme": {
+							"type": "integer"
+						},
+						"userTitle": {
+							"type": "integer"
+						},
+						"successMessageFlags": {
+							"type": "string"
+						},
+						"isDeleted": {
+							"type": "boolean"
+						},
+						"about": {
+							"type": "string"
+						},
+						"firstAccess": {
+							"type": "string"
+						},
+						"lastUpdate": {
+							"type": "string"
+						},
+						"context": {
+							"type": "object",
+							"properties": {
+								"isFollowing": {
+									"type": "boolean"
+								},
+								"ignoreStatus": {
+									"type": "object",
+									"properties": {
+										"isIgnored": {
+											"type": "boolean"
+										},
+										"ignoreFlags": {
+											"type": "integer"
+										}
+									}
+								}
+							}
+						},
+						"psnDisplayName": {
+							"type": "string"
+						},
+						"xboxDisplayName": {
+							"type": "string"
+						},
+						"showActivity": {
+							"type": "boolean"
+						},
+						"locale": {
+							"type": "string"
+						},
+						"localeInheritDefault": {
+							"type": "boolean"
+						},
+						"showGroupMessaging": {
+							"type": "boolean"
+						},
+						"profilePicturePath": {
+							"type": "string"
+						},
+						"profileThemeName": {
+							"type": "string"
+						},
+						"userTitleDisplay": {
+							"type": "string"
+						},
+						"statusText": {
+							"type": "string"
+						},
+						"statusDate": {
+							"type": "string"
+						}
+					}
+				},
+				"emailStatus": {
+					"type": "integer"
+				},
+				"emailUsage": {
+					"type": "string"
+				},
+				"gamerTag": {
+					"type": "string"
+				},
+				"psnId": {
+					"type": "string"
+				},
+				"facebookName": {
+					"type": "string"
+				},
+				"userAcls": {
+					"type": "array",
+					"items": {
+						"type": "object"
+					}
+				},
+				"showGamertagPublic": {
+					"type": "boolean"
+				},
+				"showFacebookPublic": {
+					"type": "boolean"
+				},
+				"showPsnPublic": {
+					"type": "boolean"
+				},
+				"publicCredentialTypes": {
+					"type": "array",
+					"items": {
+						"type": "integer"
+					}
+				},
+				"isThemeLight": {
+					"type": "boolean"
+				},
+				"adultMode": {
+					"type": "boolean"
+				},
+				"userResearchStatusFlags": {
+					"type": "string"
+				},
+				"privacy": {
+					"type": "integer"
+				},
+				"hideDestinyData": {
+					"type": "boolean"
+				},
+				"pmToastsEnabled": {
+					"type": "boolean"
+				}
+			}
+		},
+		"BungieNetUserResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/BungieNetUser"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object"
+				}
+			}
+		},
+		"AccessTokens": {
+			"type": "object",
+			"properties": {
+				"accessToken": {
+					"type": "object",
+					"properties": {
+						"value": {
+							"type": "string"
+						},
+						"readyin": {
+							"type": "integer"
+						},
+						"expires": {
+							"type": "integer"
+						}
+					}
+				},
+				"refreshToken": {
+					"type": "object",
+					"properties": {
+						"value": {
+							"type": "string"
+						},
+						"readyin": {
+							"type": "integer"
+						},
+						"expires": {
+							"type": "integer"
+						}
+					}
+				},
+				"scope": {
+					"type": "integer"
+				}
+			}
+		},
+		"AccessTokensResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/AccessTokens"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object",
+					"properties": {}
+				}
+			}
+		},
+		"CharacterInventorySummary": {
+			"type": "object",
+			"properties": {
+				"data": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"itemHash": {
+										"type": "string"
+									},
+									"itemId": {
+										"type": "string"
+									},
+									"quantity": {
+										"type": "integer"
+									},
+									"damageType": {
+										"type": "integer"
+									},
+									"damageTypeHash": {
+										"type": "string"
+									},
+									"isGridComplete": {
+										"type": "boolean"
+									},
+									"transferStatus": {
+										"type": "integer"
+									},
+									"state": {
+										"type": "integer"
+									},
+									"characterIndex": {
+										"type": "integer"
+									},
+									"bucketHash": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"currencies": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"itemHash": {
+										"type": "string"
+									},
+									"value": {
+										"type": "integer"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"CharacterInventorySummaryResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/CharacterInventorySummary"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object",
+					"properties": {}
+				}
+			}
+		},
+		"Manifest": {
+			"type": "object",
+			"properties": {
+				"version": {
+					"type": "string"
+				},
+				"mobileAssetContentPath": {
+					"type": "string"
+				},
+				"mobileGearAssetDataBases": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"version": {
+								"type": "integer"
+							},
+							"path": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"mobileWorldContentPaths": {
+					"type": "object",
+					"properties": {
+						"en": {
+							"type": "string"
+						},
+						"fr": {
+							"type": "string"
+						},
+						"es": {
+							"type": "string"
+						},
+						"de": {
+							"type": "string"
+						},
+						"it": {
+							"type": "string"
+						},
+						"ja": {
+							"type": "string"
+						},
+						"pt-br": {
+							"type": "string"
+						}
+					}
+				},
+				"mobileGearCDN": {
+					"type": "object",
+					"properties": {
+						"Geometry": {
+							"type": "string"
+						},
+						"Texture": {
+							"type": "string"
+						},
+						"PlateRegion": {
+							"type": "string"
+						},
+						"Gear": {
+							"type": "string"
+						},
+						"Shader": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"ManifestResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/Manifest"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object",
+					"properties": {}
+				}
+			}
+		},
+		"InventoryItem": {
+			"type": "object",
+			"properties": {
+				"itemHash": {
+					"type": "string"
+				},
+				"bindStatus": {
+					"type": "integer"
+				},
+				"isEquipped": {
+					"type": "boolean"
+				},
+				"itemInstanceId": {
+					"type": "string"
+				},
+				"itemLevel": {
+					"type": "integer"
+				},
+				"stackSize": {
+					"type": "integer"
+				},
+				"qualityLevel": {
+					"type": "integer"
+				},
+				"stats": {
+					"type": "array",
+					"items": {}
+				},
+				"canEquip": {
+					"type": "boolean"
+				},
+				"equipRequiredLevel": {
+					"type": "integer"
+				},
+				"unlockFlagHashRequiredToEquip": {
+					"type": "string"
+				},
+				"cannotEquipReason": {
+					"type": "integer"
+				},
+				"damageType": {
+					"type": "integer"
+				},
+				"damageTypeHash": {
+					"type": "string"
+				},
+				"damageTypeNodeIndex": {
+					"type": "integer"
+				},
+				"damageTypeStepIndex": {
+					"type": "integer"
+				},
+				"talentGridHash": {
+					"type": "string"
+				},
+				"nodes": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"isActivated": {
+								"type": "boolean"
+							},
+							"stepIndex": {
+								"type": "integer"
+							},
+							"state": {
+								"type": "integer"
+							},
+							"nodeHash": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"useCustomDyes": {
+					"type": "boolean"
+				},
+				"artRegions": {
+					"type": "object",
+					"properties": {}
+				},
+				"isEquipment": {
+					"type": "boolean"
+				},
+				"isGridComplete": {
+					"type": "boolean"
+				},
+				"perks": {
+					"type": "array",
+					"items": {}
+				},
+				"location": {
+					"type": "integer"
+				},
+				"transferStatus": {
+					"type": "integer"
+				},
+				"locked": {
+					"type": "boolean"
+				},
+				"lockable": {
+					"type": "boolean"
+				},
+				"objectives": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"objectiveHash": {
+								"type": "string"
+							},
+							"destinationHash": {
+								"type": "string"
+							},
+							"activityHash": {
+								"type": "string"
+							},
+							"progress": {
+								"type": "integer"
+							},
+							"hasProgress": {
+								"type": "boolean"
+							},
+							"isComplete": {
+								"type": "boolean"
+							}
+						}
+					}
+				},
+				"state": {
+					"type": "integer"
+				}
+			}
+		},
+		"CharacterInventory": {
+			"type": "object",
+			"properties": {
+				"data": {
+					"type": "object",
+					"properties": {
+						"buckets": {
+							"type": "object",
+							"properties": {
+								"Invisible": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"items": {
+												"type": "array",
+												"items": {}
+											},
+											"bucketHash": {
+												"type": "string"
+											}
+										}
+									}
+								},
+								"Item": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"items": {
+												"type": "array",
+												"items": {
+													"$ref": "#/definitions/InventoryItem"
+												}
+											},
+											"bucketHash": {
+												"type": "string"
+											}
+										}
+									}
+								},
+								"Equippable": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"items": {
+												"type": "array",
+												"items": {
+													"$ref": "#/definitions/InventoryItem"
+												}
+											},
+											"bucketHash": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						},
+						"currencies": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"itemHash": {
+										"type": "string"
+									},
+									"value": {
+										"type": "integer"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"CharacterInventoryResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/CharacterInventory"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object",
+					"properties": {}
+				}
+			}
+		},
+		"AccountVault": {
+			"type": "object",
+			"properties": {
+				"data": {
+					"type": "object",
+					"properties": {
+						"buckets": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"items": {
+										"type": "array",
+										"items": {
+											"$ref": "#/definitions/InventoryItem"
+										}
+									},
+									"bucketHash": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"AccountVaultResponse": {
+			"type": "object",
+			"properties": {
+				"Response": {
+					"$ref": "#/definitions/AccountVault"
+				},
+				"ErrorCode": {
+					"type": "integer"
+				},
+				"ThrottleSeconds": {
+					"type": "integer"
+				},
+				"ErrorStatus": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				},
+				"MessageData": {
+					"type": "object",
+					"properties": {}
+				}
+			}
+		}
+	}
+}
